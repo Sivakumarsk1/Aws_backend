@@ -4,10 +4,18 @@ const nodemailer = require("nodemailer");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+
+const sslOptions = {
+    key: fs.readFileSync('./ssl/server.key'),
+    cert: fs.readFileSync('./ssl/server.cert')
+};
 
 // Database pool configuration
 const pool = mysql.createPool({
@@ -231,4 +239,6 @@ function createMailOptions(email, name, age, gender, date, time, address) {
     };
 }
 
-app.listen(5001, () => console.log("Server running on port 5001"));
+https.createServer(sslOptions, app).listen(5001, () => {
+    console.log("🔒 HTTPS Server running on port 5001");
+});
